@@ -1,2 +1,2 @@
 # jenkins-devops-libraries
-jenkins shared devops libraries
+Shared libraries for Jenkins pipelines
