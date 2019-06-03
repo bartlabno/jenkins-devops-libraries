@@ -3,8 +3,8 @@
 def call(Map buildParams) {
     if (!buildParams.hasProperty("nodeType") && !buildParams.nodeType) { buildParams.nodeType = "t2.medium" }
     if (!buildParams.hasProperty("nodes") && !buildParams.nodes) { buildParams.nodes = 4 }
-    if (!buildParams.hasProperty("nodeMin") && !buildParams.nodeMin) { buildParams.nodeMin = buildParams.nodes }
-    if (!buildParams.hasProperty("nodeMax") && !buildParams.nodeMax) { buildParams.nodeMax = buildParams.nodes }
+    if (!buildParams.hasProperty("nodeMin") && !buildParams.nodeMin) { buildParams.nodeMin = '${buildParams.nodes}' }
+    if (!buildParams.hasProperty("nodeMax") && !buildParams.nodeMax) { buildParams.nodeMax = '${buildParams.nodes}' }
     if (!buildParams.hasProperty("storageClass") && !buildParams.storageClass) { buildParams.storageClass = true }
     if (!buildParams.hasProperty("eksParams") && !buildParams.eskParams) { buildParams.eksParams = "" }
 
