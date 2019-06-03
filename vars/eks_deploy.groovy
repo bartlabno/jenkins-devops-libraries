@@ -9,14 +9,14 @@ def call(Map buildParams) {
     if (!buildParams.hasProperty("eksParams") && !buildParams.eskParams) { buildParams.eksParams = "" }
 
     node ( label: 'awscli' ) {
-        stage('eks checkout') {
+        stage("checkout ${buildParams.env}") {
             checkout scm
         }
-        stage("create cluster") {
+        stage("create cluster ${buildParams.env}") {
             sh script: """\
-            eksctl utils write-kubeconfig --name=${projectName}-${ENVIRONMENT} --region=${awsRegion} \
+            eksctl utils write-kubeconfig --name=${projectName}-${buildParams.env} --region=${awsRegion} \
             || eksctl create cluster \
-                --name=${projectName}-${ENVIRONMENT} \
+                --name=${projectName}-${buildParams.env} \
                 --region=${awsRegion} \
                 --nodes=${buildParams.nodes} \
                 --node-type=${buildParams.nodeType} \
