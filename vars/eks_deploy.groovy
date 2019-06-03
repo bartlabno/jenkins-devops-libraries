@@ -14,9 +14,9 @@ def call(Map buildParams) {
         }
         stage("create cluster") {
             sh script: """\
-            eksctl utils write-kubeconfig --name=${buildParams.projectName}-${ENVIRONMENT} --region=${awsRegion} \
+            eksctl utils write-kubeconfig --name=${projectName}-${ENVIRONMENT} --region=${awsRegion} \
             || eksctl create cluster \
-                --name=${buildParams.projectName}-${ENVIRONMENT} \
+                --name=${projectName}-${ENVIRONMENT} \
                 --region=${awsRegion} \
                 --nodes=${buildParams.nodes} \
                 --node-type=${buildParams.nodeType} \
