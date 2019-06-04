@@ -33,15 +33,15 @@ def call(Map buildParams) {
             sh script: "echo \"AwsRegion: ${awsRegion}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - AWS region"
             sh script: "echo \"BranchName: ${BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
             sh script: "echo \"BuildNumber: ${BUILD_NUMBER}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - build number"
-            sh script: "echo \"Role: ${role}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - role"
-            sh script: "echo \"AlterRole: ${alterRole}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - alter role"
+            sh script: "echo \"Role: \$role\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - role"
+            sh script: "echo \"AlterRole: \$alterRole\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - alter role"
             sh script: "cat ./infrastructure/k8s/values.yaml"
         }
         stage("integration tests ${buildParams.env}") {
             sh "sleep 10"
         }
         stage("promote ${buildParams.env}") {
-            sh script: "sed -i \"s/AlterRole.*/AlterRole: ${role}/g\" ./infrastructure/k8s/values.yaml", label: "building helm values - alter role swap"
+            sh script: "sed -i \"s/AlterRole.*/AlterRole: \$role/g\" ./infrastructure/k8s/values.yaml", label: "building helm values - alter role swap"
             sh script: "cat ./infrastructure/k8s/values.yaml"
         }
     }
