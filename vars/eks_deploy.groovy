@@ -33,7 +33,7 @@ def call(Map buildParams) {
             sh script: "echo \"AwsRegion: ${awsRegion}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - AWS region"
             sh script: "echo \"BranchName: ${BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
             sh script: "echo \"BuildNumber: ${BUILD_NUMBER}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - build number"
-            sh script: "echo \"Role: \$(if [ \$(kubectl get all \| grep \"service/\${projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ $(kubectl describe service/\${projectName}-service \| grep role=green -c) -eq 0 ]; then echo blue; else
+            sh script: "echo \"Role: \$(if [ \$(kubectl get all | grep \"service/\${projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ $(kubectl describe service/\${projectName}-service | grep role=green -c) -eq 0 ]; then echo blue; else
  echo green; fi; fi)\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - role"
             sh script: "echo \"AlterRole: \$alterRole\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - alter role"
             sh script: "cat ./infrastructure/k8s/values.yaml"
