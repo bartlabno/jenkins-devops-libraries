@@ -31,7 +31,7 @@ def call(Map buildParams) {
             sh script: "echo \"ProjectName: ${projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
             sh script: "echo \"Env: ${buildParams.env}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - environment"
             sh script: "echo \"AwsRegion: ${awsRegion}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - AWS region"
-            sh script: "echo \"BranchName: ${$BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
+            sh script: "echo \"BranchName: ${BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
             sh script: "echo \"BuildNumber: ${BUILD_NUMBER}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - build number"
             sh script: "echo \"Role: ${role}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - role"
             sh script: "echo \"AlterRole: ${alterRole}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - alter role"
