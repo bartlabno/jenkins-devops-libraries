@@ -16,9 +16,9 @@ def call(Map buildParams) {
             )
         }
         stage('publish') {
-            sh script: "docker tag ${projectName} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${awsRegion}.amazonaws.com/${projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "tag image"
-            sh script: "aws ecr create-repository --repository-name ${projectName}  || aws ecr list-images --repository-name ${projectName}", label: "check if repository exist"
-            sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${awsRegion}.amazonaws.com/${projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "push image to registry"
+            sh script: "docker tag ${projectName} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${awsRegion}.amazonaws.com/${projectName}/${projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "tag image"
+            sh script: "(aws ecr list-images --region ${awsRegion} --repository-name ${projectName}/${projectName}) || (aws ecr create-repository --repository-name ${projectName}/${projectName})", label: "check if repository exist"
+            sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${awsRegion}.amazonaws.com/${projectName}/${projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "push image to registry"
         }
     }
 }
