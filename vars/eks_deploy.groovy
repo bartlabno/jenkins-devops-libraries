@@ -27,8 +27,7 @@ def call(Map buildParams) {
                 ${buildParams.eksParams}""", label: "create cluster if not exist"
         }
         stage("deploy ${buildParams.env}") {
-            sh script: "echo \" \" >> ./infrastructure/k8s/values.yaml", label: "building helm values - new line"
-            sh script: "echo \"ProjectName: ${projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
+            sh script: "echo -e \"\\nProjectName: ${projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
             sh script: "echo \"Env: ${buildParams.env}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - environment"
             sh script: "echo \"AwsRegion: ${awsRegion}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - AWS region"
             sh script: "echo \"BranchName: ${BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
