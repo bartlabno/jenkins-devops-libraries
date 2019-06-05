@@ -27,20 +27,21 @@ def call(Map buildParams) {
                 ${buildParams.eksParams}""", label: "create cluster if not exist"
         }
         stage("deploy ${buildParams.env}") {
-            sh script: "echo \"\\nProjectName: ${projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
+            sh script: "echo \" \" >> ./infrastructure/k8s/values.yaml", label: "building helm values - new line"
+            sh script: "echo \"ProjectName: ${projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
             sh script: "echo \"Env: ${buildParams.env}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - environment"
             sh script: "echo \"AwsRegion: ${awsRegion}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - AWS region"
             sh script: "echo \"BranchName: ${BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
             sh script: "echo \"BuildNumber: ${BUILD_NUMBER}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - build number"
             sh script: "echo \"Role: \$(if [ \$(kubectl get all | grep \"service/\${projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ \$(kubectl describe service/\${projectName}-service | grep role=green -c) -eq 0 ]; then echo blue; else echo green; fi; fi)\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - role"
             sh script: "helm template --values ./infrastructure/k8s/values.yaml --output-dir ./infrastructure/k8s/manifests ./infrastructure/k8s"
-            sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/deployment.yaml"
+            sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/kube/templates/deployment.yaml"
         }
         stage("integration tests ${buildParams.env}") {
             sh "sleep 90"
         }
         stage("promote ${buildParams.env}") {
-            sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/service.yaml"
+            sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/kube/templates/service.yaml"
         }
     }
 }
