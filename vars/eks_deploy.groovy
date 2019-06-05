@@ -33,15 +33,14 @@ def call(Map buildParams) {
             sh script: "echo \"BranchName: ${BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
             sh script: "echo \"BuildNumber: ${BUILD_NUMBER}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - build number"
             sh script: "echo \"Role: \$(if [ \$(kubectl get all | grep \"service/\${projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ \$(kubectl describe service/\${projectName}-service | grep role=green -c) -eq 0 ]; then echo blue; else echo green; fi; fi)\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - role"
-            sh script: "echo \"AlterRole: \$(if [ \$(cat ./infrastructure/k8s/values.yaml | grep -c \"Role: blue\") -eq 0 ]; then echo blue; else echo green; fi)\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - alter role"
-            sh script: "cat ./infrastructure/k8s/values.yaml"
+            sh script: "helm template --values ./infrastructure/k8s/values.yaml --output-dir ./infrastructure/k8s/manifests ./infrastructure/k8s"
+            sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/deployment.yaml"
         }
         stage("integration tests ${buildParams.env}") {
-            sh "sleep 10"
+            sh "sleep 90"
         }
         stage("promote ${buildParams.env}") {
-            sh script: "sed -i \"s/AlterRole.*/AlterRole: \$(cat ./infrastructure/k8s/values.yaml | grep -w \"Role:\" | awk '{print \$2}' )/g\" ./infrastructure/k8s/values.yaml", label: "building helm values - alter role swap"
-            sh script: "cat ./infrastructure/k8s/values.yaml"
+            sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/service.yaml"
         }
     }
 }
