@@ -46,7 +46,7 @@ def call(Map buildParams) {
                                     sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/kube/templates/deployment.yaml"
                                 }
                                 stage("integration tests ${envs}") {
-                                    sh "sleep 90"
+                                    sh "sleep 5"
                                 }
                                 stage("promote ${envs}") {
                                     sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/kube/templates/service.yaml"
