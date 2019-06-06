@@ -33,9 +33,9 @@ def call(Map buildParams) {
                                 ${pipe_vars.eksParams}""", label: "create cluster if not exist"
                         }
                         stage("deploy ${envs}") {
-                            sh script: "helm template --values ./infrastructure/k8s/values.yaml \ 
-                                --set ProjectName=${defaults.projectName},Env=${envs},AwsRegion=${defaults.awsRegion},BranchName=${BRANCH_NAME},BuildNumber=${BuildNumber},Role=\$(if [ \$(kubectl get all | grep \"service/\${projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ \$(kubectl describe service/\${projectName}-service | grep role=green -c) -eq 0 ]; then echo green; else echo blue; fi; fi)
-                                --output-dir ./infrastructure/k8s/manifests ./infrastructure/k8s"
+                            sh script: """helm template --values ./infrastructure/k8s/values.yaml \ 
+                                --set ProjectName=${defaults.projectName},Env=${envs},AwsRegion=${defaults.awsRegion},BranchName=${BRANCH_NAME},BuildNumber=${BuildNumber},Role=\$(if [ \$(kubectl get all | grep \"service/\${projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ \$(kubectl describe service/\${projectName}-service | grep role=green -c) -eq 0 ]; then echo green; else echo blue; fi; fi) \
+                                --output-dir ./infrastructure/k8s/manifests ./infrastructure/k8s"""
                             // sh script: "echo -e \"\\nProjectName: ${defaults.projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
                             // sh script: "echo \"Env: ${envs}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - environment"
                             // sh script: "echo \"AwsRegion: ${defaults.awsRegion}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - AWS region"
