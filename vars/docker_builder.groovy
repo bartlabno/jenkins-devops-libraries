@@ -24,7 +24,7 @@ def call(Map buildParams) {
             sh script: "docker tag ${defaults.projectName} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}/${defaults.projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "tag image"
             sh script: "(aws ecr list-images --region ${defaults.awsRegion} --repository-name ${defaults.projectName}/${defaults.projectName}) || (aws ecr create-repository --region ${defaults.awsRegion} --repository-name ${defaults.projectName}/${defaults.projectName})", label: "check if repository exist"
             sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}/${defaults.projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "push image to registry"
-            if ($BRANCH_NAME == "sharedlibs") {
+            if (env.BRANCH_NAME == "sharedlibs") {
                 sh "echo okokokokook"
                 sh script: "docker tag ${defaults.projectName} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}/${defaults.projectName}:latest", label: "tag image latest"
                 sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}/${defaults.projectName}:latest", label: "push latest image to registry"
