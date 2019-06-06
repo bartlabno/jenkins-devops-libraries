@@ -4,7 +4,7 @@ def call(Map buildParams) {
     node ( label: 'linux' ) {
         stage('builder checkout') {
             checkout scm
-            def defaults = readYaml file(globe: '**/infrastructure/jenkins/defaults.y?ml')
+            def defaults = readYaml file(glob: '**/infrastructure/jenkins/defaults.y?ml')
         }
         stage('test') {
             sh script: "docker build --no-cache -t ${defaults.projectName}-test -f Dockerfile.test .", label: "build test docker image"
