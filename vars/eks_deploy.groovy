@@ -6,7 +6,7 @@ def call(Map buildParams) {
             checkout scm
             def env_files = findFiles(glob: '**/infrastructure/jenkins/*.y?ml') 
             for (file in env_files) {
-                if (file[0].name == "defaults.yaml" ) {
+                if (file.name == "defaults.yaml" ) {
                     def defaults = readYaml file: "${file.path}"
                     defaults.each { item -> 
                         echo """${item}"""
