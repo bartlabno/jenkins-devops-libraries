@@ -4,8 +4,7 @@ def call(Map buildParams) {
     node ( label: 'linux' ) {
         stage('builder checkout') {
             checkout scm
-            def defaults_file = findFiles(glob: '**/infrastructure/jenkins/defaults.y?ml')
-            def defaults = readYaml file: "${defaults_file[0].path}"
+            def defaults = readYaml file: "./infrastructure/jenkins/defaults.yaml"
             defaults.each { item -> 
                 echo """${item}"""
             }    
