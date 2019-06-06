@@ -5,11 +5,11 @@ def call(Map buildParams) {
         stage('builder checkout') {
             checkout scm
             def defaults_file = findFiles(glob: '**/infrastructure/jenkins/defaults.y?ml')
-            env.defaults = readYaml file: "${defaults_file[0].path}"
-            env.defaults.each { item -> 
+            def defaults = readYaml file: "${defaults_file[0].path}"
+            def defaults.each { item -> 
                 echo """okay or not ${item}"""
             }    
-        }
+        
         stage('test') {
             sh script: "docker build --no-cache -t ${defaults.projectName}-test -f Dockerfile.test .", label: "build test docker image"
             sh script: "docker run ${defaults.projectName}-test", label: "run test docker image"
@@ -29,6 +29,7 @@ def call(Map buildParams) {
                 sh script: "docker tag ${defaults.projectName} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}/${defaults.projectName}:latest", label: "tag image latest"
                 sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}/${defaults.projectName}:latest", label: "push latest image to registry"
             }
+        }
         }
     }
 }
