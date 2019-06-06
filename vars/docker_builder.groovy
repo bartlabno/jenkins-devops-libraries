@@ -1,11 +1,11 @@
 #!/usr/bin/env groovy
 
+def defaults_file = findFiles(glob: '**/infrastructure/jenkins/defaults.y?ml')
+def defaults = readYaml file: "${defaults_file[0].path}"
 def call(Map buildParams) {
     node ( label: 'linux' ) {
         stage('builder checkout') {
             checkout scm
-            def defaults_file = findFiles(glob: '**/infrastructure/jenkins/defaults.y?ml')
-            def defaults = readYaml file: "${defaults_file[0].path}"
         }
         stage('test') {
             sh script: "docker build --no-cache -t ${defaults.projectName}-test -f Dockerfile.test .", label: "build test docker image"
