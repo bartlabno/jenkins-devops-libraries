@@ -6,7 +6,7 @@ def call(Map buildParams) {
             checkout scm
             def defaults = readYaml file: "./infrastructure/jenkins/defaults.yaml"
             // def env_files = findFiles(glob: '**/infrastructure/jenkins/*.yaml') 
-            for (envs in defaults.environments) {
+            defaults.environments.each { envs ->
                 // if (file.name != "defaults.yaml" ) {
                     def pipe_vars = readYaml file: "./infrastructure/jenkins/${envs}.yaml"
                     if (!pipe_vars.nodeType) { pipe_vars.nodeType = "t2.medium" }
