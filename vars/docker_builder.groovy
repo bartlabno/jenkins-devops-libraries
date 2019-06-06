@@ -1,15 +1,12 @@
 #!/usr/bin/env groovy
 
-def defaults_file = findFiles(glob: '**/infrastructure/jenkins/defaults.y?ml')
-def defaults = readYaml file: "${defaults_file[0].path}"
-      defaults.each { item -> 
-        echo """ok ${item}"""
-      }
 def call(Map buildParams) {
     node ( label: 'linux' ) {
         stage('builder checkout') {
             checkout scm
-            defaults.each { item -> 
+            def defaults_file = findFiles(glob: '**/infrastructure/jenkins/defaults.y?ml')
+            env.defaults = readYaml file: "${defaults_file[0].path}"
+            env.defaults.each { item -> 
                 echo """okay or not ${item}"""
             }    
         }
