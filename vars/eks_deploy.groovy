@@ -16,7 +16,7 @@ def call(Map buildParams) {
                     if (!pipe_vars.storageClass) { pipe_vars.storageClass = true }
                     if (!pipe_vars.eksParams) { pipe_vars.eksParams = "" }
                     if (pipe_vars.deploy) {
-                        pipe_vars.each { item ->
+                        // pipe_vars.each { item ->
                             node ( label: 'awscli' ) {
                                 stage("checkout ${pipe_vars.env}") {
                                     checkout scm
@@ -52,7 +52,7 @@ def call(Map buildParams) {
                                     sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/kube/templates/service.yaml"
                                 }
                             }
-                        }
+                        // }
                     }
                 }
             }
