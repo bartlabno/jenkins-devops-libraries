@@ -5,10 +5,10 @@ def call(Map buildParams) {
         stage("gathering fatcs") {
             checkout scm
             def defaults = readYaml file: "./infrastructure/jenkins/defaults.yaml"
-            def env_files = findFiles(glob: '**/infrastructure/jenkins/*.yaml') 
-            for (file in env_files) {
-                if (file.name != "defaults.yaml" ) {
-                    def pipe_vars = readYaml file: "${file.path}"
+            // def env_files = findFiles(glob: '**/infrastructure/jenkins/*.yaml') 
+            for (envs in defaults.environments) {
+                // if (file.name != "defaults.yaml" ) {
+                    def pipe_vars = readYaml file: "./infrastructure/jenkins/${envs}.yaml"
                     if (!pipe_vars.nodeType) { pipe_vars.nodeType = "t2.medium" }
                     if (!pipe_vars.nodes) { pipe_vars.nodes = 4 }
                     if (!pipe_vars.nodesMin) { pipe_vars.nodesMin = pipe_vars.nodes }
@@ -18,14 +18,14 @@ def call(Map buildParams) {
                     if (pipe_vars.deploy) {
                         // pipe_vars.each { item ->
                             node ( label: 'awscli' ) {
-                                stage("checkout ${pipe_vars.env}") {
+                                stage("checkout ${envs}") {
                                     checkout scm
                                 }
-                                stage("create cluster ${pipe_vars.env}") {
+                                stage("create cluster ${envs}") {
                                     sh script: """\
-                                    eksctl utils write-kubeconfig --name=${defaults.projectName}-${pipe_vars.env} --region=${defaults.awsRegion} \
+                                    eksctl utils write-kubeconfig --name=${defaults.projectName}-${envs} --region=${defaults.awsRegion} \
                                     || eksctl create cluster \
-                                        --name=${defaults.projectName}-${pipe_vars.env} \
+                                        --name=${defaults.projectName}-${envs} \
                                         --region=${defaults.awsRegion} \
                                         --nodes=${pipe_vars.nodes} \
                                         --node-type=${pipe_vars.nodeType} \
@@ -35,9 +35,9 @@ def call(Map buildParams) {
                                         --alb-ingress-access \
                                         ${pipe_vars.eksParams}""", label: "create cluster if not exist"
                                 }
-                                stage("deploy ${pipe_vars.env}") {
+                                stage("deploy ${envs}") {
                                     sh script: "echo -e \"\\nProjectName: ${defaults.projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
-                                    sh script: "echo \"Env: ${pipe_vars.env}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - environment"
+                                    sh script: "echo \"Env: ${envs}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - environment"
                                     sh script: "echo \"AwsRegion: ${defaults.awsRegion}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - AWS region"
                                     sh script: "echo \"BranchName: ${BRANCH_NAME}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - branch name"
                                     sh script: "echo \"BuildNumber: ${BUILD_NUMBER}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - build number"
@@ -45,16 +45,16 @@ def call(Map buildParams) {
                                     sh script: "helm template --values ./infrastructure/k8s/values.yaml --output-dir ./infrastructure/k8s/manifests ./infrastructure/k8s"
                                     sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/kube/templates/deployment.yaml"
                                 }
-                                stage("integration tests ${pipe_vars.env}") {
+                                stage("integration tests ${envs}") {
                                     sh "sleep 90"
                                 }
-                                stage("promote ${pipe_vars.env}") {
+                                stage("promote ${envs}") {
                                     sh script: "kubectl apply --recursive --filename ./infrastructure/k8s/manifests/kube/templates/service.yaml"
                                 }
                             }
                         // }
                     }
-                }
+                // }
             }
 
         }
