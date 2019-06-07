@@ -34,7 +34,7 @@ def call(Map buildParams) {
                         }
                         stage("deploy ${envs}") {
                             sh script: """helm template --values ./infrastructure/k8s/values.yaml \
-                                --set ProjectName=${defaults.projectName},Env=${envs},AwsRegion=${defaults.awsRegion},BranchName=${BRANCH_NAME},BuildNumber=${BUILD_NUMBER},Role=\$(if [ \$(kubectl get all | grep \"service/\${projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ \$(kubectl describe service/\${projectName}-service | grep role=green -c) -eq 0 ]; then echo green; else echo blue; fi; fi) \
+                                --set ProjectName=${defaults.projectName},Env=${envs},AwsRegion=${defaults.awsRegion},BranchName=${BRANCH_NAME},BuildNumber=${BUILD_NUMBER},Role=\$(if [ \$(kubectl get all | grep \"service/\${defaults.projectName}-service\" -c) -eq 0 ]; then echo blue; else if [ \$(kubectl describe service/\${defaults.projectName}-service | grep role=green -c) -ge 1 ]; then echo blue; else echo green; fi; fi) \
                                 --output-dir ./infrastructure/k8s/manifests ./infrastructure/k8s"""
                             // sh script: "echo -e \"\\nProjectName: ${defaults.projectName}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - project name"
                             // sh script: "echo \"Env: ${envs}\" >> ./infrastructure/k8s/values.yaml", label: "building helm values - environment"
