@@ -9,10 +9,8 @@ def call(Map buildParams) {
                 echo """${item}"""
             }    
             stage('test') {
-                sh script: "echo \"FROM microsoft/dotnet:${defaults.sdkVersion}-sdk-alpine\" > Dockerfile.test"
-                sh script: "echo \"ADD . .\" >> Dockerfile.test"
-                sh script: "echo \"CMD [\"/bin/sh\", \"unitTests.sh\"]\" >> Dockerfile.test"
                 sh script: "cp ~/scripts/unitTests.sh ."
+                sh script: "cp ~/scripts/Dockerfile.sdk-${defaults.sdkVersion} ./Dockerfile.test"
                 sh script: "cat unitTests.sh"
                 sh script: "cat Dockerfile.test"
                 sh script: "docker build --no-cache -t ${defaults.projectName}-test -f Dockerfile.test .", label: "build test docker image"
