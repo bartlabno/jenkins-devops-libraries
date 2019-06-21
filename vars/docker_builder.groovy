@@ -22,7 +22,7 @@ def call(Map buildParams) {
             }
             stage('publish') {
                 sh script: "docker tag ${defaults.projectName} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "tag image"
-                sh script: "(aws ecr list-images --region ${defaults.awsRegion} --repository-name ${defaults.projectName} || (aws ecr create-repository --region ${defaults.awsRegion} --repository-name ${defaults.projectName})", label: "check if repository exist"
+                sh script: "(aws ecr list-images --region ${defaults.awsRegion} --repository-name ${defaults.projectName}) || (aws ecr create-repository --region ${defaults.awsRegion} --repository-name ${defaults.projectName})", label: "check if repository exist"
                 sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "push image to registry"
                 if (env.BRANCH_NAME == "master") {
                     sh script: "docker tag ${defaults.projectName} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}:latest", label: "tag image latest"
