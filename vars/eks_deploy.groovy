@@ -47,8 +47,6 @@ def call(Map buildParams) {
                     }
                 }
             }
-
         }
-
     }
 }
