@@ -30,26 +30,22 @@ def call(Map buildParams) {
                             sh script: "(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) || (aws elbv2 create-target-group --name ${defaults.projectName}-${defaults.applicationName}-${envs} --protocol HTTP --port ${defaults.portExpose} --vpc-id ${pipe_vars.vpc} --target-type ip --region ${defaults.awsRegion} --health-check-path ${defaults.healthCheck})", label: "configure target group"
                             sh "\$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) > sgEcsParam"
                             sgParam = readfile 'sgEcsParam'
-                            sh srcipt: """
-                            cat >infrastructure/ecs-params.yaml <<EOL
-                            version: 1
-                                task_definition:
-                                task_execution_role: ecsTaskExecutionRole
-                                ecs_network_mode: awsvpc
-                                task_size:
-                                    mem_limit: ${pipe_vars.memLimit}G
-                                    cpu_limit: ${pipe_vars.cpuLimit}
-                                run_params:
-                                network_configuration:
-                                    awsvpc_configuration:
-                                    subnets:
-                                        - "${pipe_vars.subnetA}"
-                                        - "${pipe_vars.subnetB}"
-                                    security_groups:
-                                        - "${sgParam}"
-                                    assign_public_ip: ENABLED
-                            EOL
-                            """
+                            sh "echo \"version: 1\" > infrastructure/docker/ecs-params.yam" 
+                            sh "echo \"   task_definition:\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"   task_execution_role: ecsTaskExecutionRole\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"   ecs_network_mode: awsvpc\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"   task_size:\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"       mem_limit: ${pipe_vars.memLimit}G\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"       cpu_limit: ${pipe_vars.cpuLimit}\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"   run_params:\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"   network_configuration:\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"       awsvpc_configuration:\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"       subnets:\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"           - ${pipe_vars.subnetA}\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"           - ${pipe_vars.subnetB}\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"       security_groups:\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"           - \$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion})\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"       assign_public_ip: ENABLED\" >> infrastructure/docker/ecs-params.yam"
                             sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker/docker-compose.yaml --ecs-params infrastructure/docker/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.containerName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
                         }
                         if (defaults.is_frontend) {
