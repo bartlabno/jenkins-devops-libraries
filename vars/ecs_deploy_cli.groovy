@@ -65,7 +65,7 @@ def call(Map buildParams) {
                             sh "echo \"        awslogs-region: ${defaults.awsRegion}\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"        awslogs-stream-prefix: ${defaults.applicationName}\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"    environment:\" >> infrastructure/docker-compose.yaml"
-                            sh "echo \"        ${pipe_vars.composeEnv}\" >> infrastructure/docker-compose.yaml"
+                            sh "echo \"        $(printf '%s\n' \"${pipe_vars.composeEnv[@]}\")\" >> infrastructure/docker-compose.yaml"
                             sh "cat infrastructure/docker-compose.yaml"
 
                             // sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker-compose.yaml --ecs-params infrastructure/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.containerName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
