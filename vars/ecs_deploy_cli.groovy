@@ -42,7 +42,7 @@ def call(Map buildParams) {
                             sh "echo \"           - ${pipe_vars.subnetA}\" >> infrastructure/docker/ecs-params.yam"
                             sh "echo \"           - ${pipe_vars.subnetB}\" >> infrastructure/docker/ecs-params.yam"
                             sh "echo \"       security_groups:\" >> infrastructure/docker/ecs-params.yam"
-                            sh "echo \"           - \$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion})\" >> infrastructure/docker/ecs-params.yam"
+                            sh "echo \"           - \$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query SecurityGroups[].GroupId)\" >> infrastructure/docker/ecs-params.yam"
                             sh "echo \"       assign_public_ip: ENABLED\" >> infrastructure/docker/ecs-params.yam"
                             sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker/docker-compose.yaml --ecs-params infrastructure/docker/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.containerName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
                         }
