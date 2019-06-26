@@ -54,8 +54,8 @@ def call(Map buildParams) {
 
                             sh "echo \"version: 1\" > infrastructure/docker-compose.yaml"
                             sh "echo \"services:\" >> infrastructure/docker-compose.yaml"
-                            sh "echo \"  ${defaults.projectName}:\" >> infrastructure/docker-compose.yaml"
-                            sh "echo \"    image: \"\$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)\" >> infrastructure/docker-compose.yaml"
+                            sh "echo \"  ${defaults.applicationName}:\" >> infrastructure/docker-compose.yaml"
+                            sh "echo \"    image: \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER) >> infrastructure/docker-compose.yaml"
                             sh "echo \"    ports:\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"      - ${defaults.portExpose}:${defaults.portExpose}\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"    logging:\" >> infrastructure/docker-compose.yaml"
