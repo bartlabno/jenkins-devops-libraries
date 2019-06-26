@@ -28,7 +28,7 @@ def call(Map buildParams) {
                         }
                         stage("deploy ${envs}") {
                             sh script: "(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) || (aws elbv2 create-target-group --name ${defaults.projectName}-${defaults.applicationName}-${envs} --protocol HTTP --port ${defaults.portExpose} --vpc-id ${pipe_vars.vpc} --target-type ip --region ${defaults.awsRegion} --health-check-path ${defaults.healthCheck})", label: "configure target group"
-                            sh "\$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion})" > sgEcsParam
+                            sh "\$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) > sgEcsParam"
                             sgParam = readfile 'sgEcsParam'
                             sh srcipt: """
                             cat >infrastructure/ecs-params.yaml <<EOL
