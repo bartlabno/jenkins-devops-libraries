@@ -33,7 +33,7 @@ def call(Map buildParams) {
                             sh "echo \"   task_execution_role: ecsTaskExecutionRole\" >> infrastructure/docker/ecs-params.yaml"
                             sh "echo \"   ecs_network_mode: awsvpc\" >> infrastructure/docker/ecs-params.yaml"
                             sh "echo \"   task_size:\" >> infrastructure/docker/ecs-params.yaml"
-                            sh "echo \"       mem_limit: ${pipe_vars.memLimit}G\" >> infrastructure/docker/ecs-params.yaml"
+                            sh "echo \"       mem_limit: ${pipe_vars.memLimit}GB\" >> infrastructure/docker/ecs-params.yaml"
                             sh "echo \"       cpu_limit: ${pipe_vars.cpuLimit}\" >> infrastructure/docker/ecs-params.yaml"
                             sh "echo \"run_params:\" >> infrastructure/docker/ecs-params.yaml"
                             sh "echo \"   network_configuration:\" >> infrastructure/docker/ecs-params.yaml"
