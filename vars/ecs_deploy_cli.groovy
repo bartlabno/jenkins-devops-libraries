@@ -23,7 +23,7 @@ def call(Map buildParams) {
                             } else {
                                 sh script: "(ecs-cli ps --cluster ${defaults.projectName}-${envs} --region ${defaults.awsRegion}) || (ecs-cli up --cluster ${defaults.projectName}-${envs} --region ${defaults.awsRegion} --vpc ${pipe_vars.vpc} --subnets ${pipe_vars.subnetA} ${pipe_vars.subnetB})"
                             }
-                            sh script: "(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) || (aws ec2 create-security-group --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --description ${defaults.projectName}-${defaults.applicationName}-${envs}-devops-managed --vpc-id ${pipe_vars.vpc} --region ${defaults.awsRegion})", label: "create security group"
+                            sh script: "(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) || (aws ec2 create-security-group --group-name ${defaults.projectName}-${defaults.applicationName}-${envs} --description ${defaults.projectName}-${defaults.applicationName}-${envs}-devops-managed --vpc-id ${pipe_vars.vpc} --region ${defaults.awsRegion})", label: "create security group"
                             sh script: "(aws ec2 authorize-security-group-ingress --region ${defaults.awsRegion} --group-id \$(aws ec2 describe-security-groups --group-name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query SecurityGroups[].GroupId) --protocol tcp --port ${defaults.portExpose} --cidr \$(aws ec2 describe-vpcs --vpc-ids ${pipe_vars.vpc} --region ${defaults.awsRegion} --output text --query Vpcs[].CidrBlock)) || echo OK", label: "open port for vpc only"
                         }
                         stage("deploy ${envs}") {
@@ -52,7 +52,7 @@ def call(Map buildParams) {
                         }
                         if (defaults.is_frontend) {
                             stage("frontend configuration ${envs}") {
-                                sh script: "(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${envs}-lb --region ${defaults.awsRegion}) || (aws ec2 create-security-group --group-names ${defaults.projectName}-${envs}-lb --description ${defaults.projectName}-${envs}-lb-devops-managed --vpc-id ${pipe_vars.vpc} --region ${defaults.awsRegion})", label: "create security group"
+                                sh script: "(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${envs}-lb --region ${defaults.awsRegion}) || (aws ec2 create-security-group --group-name ${defaults.projectName}-${envs}-lb --description ${defaults.projectName}-${envs}-lb-devops-managed --vpc-id ${pipe_vars.vpc} --region ${defaults.awsRegion})", label: "create security group"
                                 sh script: "(aws ec2 authorize-security-group-ingress --region ${defaults.awsRegion} --group-id \$(aws ec2 describe-security-groups --group-name ${defaults.projectName}-${envs}-lb --region ${defaults.awsRegion} --output text --query SecurityGroups[].GroupId) --protocol tcp --port ${pipe_vars.albPort} --cidr ${pipe_vars.albSource}) || echo OK", label: "open load balancer ports"
                             }
                         }
