@@ -44,7 +44,7 @@ def call(Map buildParams) {
                                         - "${pipe_vars.subnetA}"
                                         - "${pipe_vars.subnetB}"
                                     security_groups:
-                                        - "$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion})"
+                                        - "\$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion})"
                                     assign_public_ip: ENABLED
                             EOL
                             """
