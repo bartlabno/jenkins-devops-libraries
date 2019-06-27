@@ -16,8 +16,8 @@ def call(Map buildParams) {
                     sh "echo ${pipe_vars.vpc}"
                 }
                 if (!pipe_vars.subnets) { 
-                    sh "echo \"\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpc-id,Values=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId) --output text --query Subnets[].SubnetId)\" > default_subnets"
-                    String[] pipe_vars.subnets = new File('default_subnets').text
+                    sh "echo \"\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpc-id,Values=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId) --output text --query Subnets[].SubnetId)\" > /tmp/default_subnets"
+                    String[] pipe_vars.subnets = new File("/tmp/default_subnets").text
                     sh "echo ${pipe_vars.subnets}"
                 }
                 sh "echo ${pipe_vars.vpc} and ${pipe_vars.subnets}"
