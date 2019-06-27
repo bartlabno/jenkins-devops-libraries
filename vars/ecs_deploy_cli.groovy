@@ -24,6 +24,8 @@ def call(Map buildParams) {
                 pipe_vars.subnets.each { subnetX ->
                     sh "echo this subnet is ${subnetX}"
                 }
+                sh "echo list not as array is  ${pipe_vars.subnets.join(",")}"
+                exit 0
 
                 if (pipe_vars.deploy) {
                     node ( label: 'awscli' ) {
