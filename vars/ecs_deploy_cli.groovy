@@ -25,7 +25,7 @@ def call(Map buildParams) {
                     sh "echo this subnet is ${subnetX}"
                 }
 
-                sh "echo list not as array is  ${pipe_vars.subnets.join(",")}"
+                sh "echo list not as array is  ${pipe_vars.subnets.join(",").replace(",", " ")​​​​​​​​​​​​​​}"
                 sh "ok"
                 
                 exit 0
