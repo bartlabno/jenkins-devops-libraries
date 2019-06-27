@@ -84,7 +84,7 @@ def call(Map buildParams) {
                             }
                             sh "cat infrastructure/docker-compose.yaml"
 
-                            sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker-compose.yaml --ecs-params infrastructure/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.containerName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
+                            sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker-compose.yaml --ecs-params infrastructure/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.applicationName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
                         }
                         if (defaults.is_frontend) {
                             stage("frontend configuration ${envs}") {
