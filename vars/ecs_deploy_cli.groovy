@@ -11,8 +11,8 @@ def call(Map buildParams) {
                 if (!pipe_vars.cpuLimit) { pipe_vars.cpuLimit = "256" }
                 if (!pipe_vars.create_vpc) { pipe_vars.create_vpc = false }
                 if (!pipe_vars.vpc) { 
-                    sh "export DEFAULT_VPC=\$(aws ec2 describe-vpcs --region --filters ${defaults.awsRegion} Name=isDefault,Values=true --output text --query Vpcs[].VpcId)"
-                    sh "export DEFAULT_SUBNETS=\$(aws ec2 describe-subnets --filters \$(aws ec2 describe-vpcs --region --filters ${defaults.awsRegion} Name=isDefault,Values=true --output text --query Vpcs[].VpcId))"
+                    sh "export DEFAULT_VPC=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId)"
+                    sh "export DEFAULT_SUBNETS=\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpcid,Values=\$(aws ec2 describe-vpcs --region --filters ${defaults.awsRegion} Name=isDefault,Values=true --output text --query Vpcs[].VpcId))"
                     pipe_vars.vpc = $DEFAULT_VPC
                     pipe_vars.subnets = $DEFAULT_SUBNETS
                 }
@@ -21,7 +21,7 @@ def call(Map buildParams) {
                     sh "echo this subnet is ${subnetX}"
                 }
                 exit 1
-                
+
                 if (pipe_vars.deploy) {
                     node ( label: 'awscli' ) {
                         stage("checkout ${envs}") {
