@@ -24,7 +24,7 @@ def call(Map buildParams) {
                 pipe_vars.subnets.each { subnetX ->
                     sh "echo this subnet is ${subnetX}"
                 }
-                sh script: "echo \" ${pipe_vars.subnets.join(" ")} \""
+                sh script: "echo \" trick for aws is ${pipe_vars.subnets.join(" ")} \""
                 
                 exit 222
                 if (pipe_vars.deploy) {
@@ -38,7 +38,7 @@ def call(Map buildParams) {
                                 echo "not supported yet"
                                 exit 1
                             } else {
-                                sh script: "(ecs-cli ps --cluster ${defaults.projectName}-${envs} --region ${defaults.awsRegion}) || (ecs-cli up --cluster ${defaults.projectName}-${envs} --region ${defaults.awsRegion} --vpc ${pipe_vars.vpc} --subnets ${pipe_vars.subnets})"
+                                sh script: "(ecs-cli ps --cluster ${defaults.projectName}-${envs} --region ${defaults.awsRegion}) || (ecs-cli up --cluster ${defaults.projectName}-${envs} --region ${defaults.awsRegion} --vpc ${pipe_vars.vpc} --subnets ${pipe_vars.subnets.join(" ")})"
                             }
                             sh script: "(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) || (aws ec2 create-security-group --group-name ${defaults.projectName}-${defaults.applicationName}-${envs} --description ${defaults.projectName}-${defaults.applicationName}-${envs}-devops-managed --vpc-id ${pipe_vars.vpc} --region ${defaults.awsRegion})", label: "create security group"
                             sh script: "(aws ec2 authorize-security-group-ingress --region ${defaults.awsRegion} --group-id \$(aws ec2 describe-security-groups --group-name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query SecurityGroups[].GroupId) --protocol tcp --port ${defaults.portExpose} --cidr \$(aws ec2 describe-vpcs --vpc-ids ${pipe_vars.vpc} --region ${defaults.awsRegion} --output text --query Vpcs[].CidrBlock)) || echo OK", label: "open port for vpc only"
@@ -46,7 +46,7 @@ def call(Map buildParams) {
                         stage("deploy ${envs}") {
                             sh script: "(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${envs}-lb --region ${defaults.awsRegion}) || (aws ec2 create-security-group --group-name ${defaults.projectName}-${envs}-lb --description ${defaults.projectName}-${envs}-lb-devops-managed --vpc-id ${pipe_vars.vpc} --region ${defaults.awsRegion})", label: "create security group"
                             sh script: "(aws ec2 authorize-security-group-ingress --region ${defaults.awsRegion} --group-id \$(aws ec2 describe-security-groups --group-name ${defaults.projectName}-${envs}-lb --region ${defaults.awsRegion} --output text --query SecurityGroups[].GroupId) --protocol tcp --port ${pipe_vars.albPort} --cidr ${pipe_vars.albSource}) || echo OK", label: "open load balancer ports"
-                            sh script: "(aws elbv2 describe-load-balancers --name ${defaults.projectName}-${envs} --region ${defaults.awsRegion}) || (aws elbv2 create-load-balancer --name ${defaults.projectName}-${envs} --subnets ${pipe_vars.subnets} --region ${defaults.awsRegion} --type application --scheme internet-facing --security-groups \$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${envs}-lb --region ${defaults.awsRegion} --output text --query  SecurityGroups[].GroupId))"
+                            sh script: "(aws elbv2 describe-load-balancers --name ${defaults.projectName}-${envs} --region ${defaults.awsRegion}) || (aws elbv2 create-load-balancer --name ${defaults.projectName}-${envs} --subnets ${pipe_vars.subnets.join(" ")} --region ${defaults.awsRegion} --type application --scheme internet-facing --security-groups \$(aws ec2 describe-security-groups --group-names ${defaults.projectName}-${envs}-lb --region ${defaults.awsRegion} --output text --query  SecurityGroups[].GroupId))"
                             sh script: "(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion}) || (aws elbv2 create-target-group --name ${defaults.projectName}-${defaults.applicationName}-${envs} --protocol HTTP --port ${defaults.portExpose} --vpc-id ${pipe_vars.vpc} --target-type ip --region ${defaults.awsRegion} --health-check-path ${defaults.healthCheck})", label: "configure target group"
                             sh script: "(aws elbv2 create-listener --load-balancer-arn \$(aws elbv2 describe-load-balancers --name ${defaults.projectName}-${envs} --output text --query LoadBalancers[].LoadBalancerArn) --protocol HTTP --port ${defaults.albExtPort} --default-actions Type=forward,TargetGroupArn=\$(aws elbv2 describe-target-groups --region ${defaults.awsRegion} --name ${defaults.projectName}-${defaults.applicationName}-${envs} --output text --query TargetGroups[].TargetGroupArn))"
                             sh script: "(aws logs list-tags-log-group --log-group-name ${defaults.projectName}-${envs} --region ${defaults.awsRegion}) || (aws logs create-log-group --log-group-name ${defaults.projectName}-${envs} --region ${defaults.awsRegion})", label: "create log group"
