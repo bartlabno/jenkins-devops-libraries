@@ -13,20 +13,12 @@ def call(Map buildParams) {
                 if (!pipe_vars.vpc) {
                     sh "export DEFAULT_VPC=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId)"
                     pipe_vars.vpc = $DEFAULT_VPC
-                    sh "echo ${pipe_vars.vpc}"
                 }
                 if (!pipe_vars.subnets) { 
                     sh "echo \"\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpc-id,Values=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId) --output text --query Subnets[].SubnetId)\" > infrastructure/default_subnets"
                     pipe_vars.subnets = readFile 'infrastructure/default_subnets'
                     pipe_vars.subnets = pipe_vars.subnets.split()
                 }
-                sh "echo ${pipe_vars.vpc} and ${pipe_vars.subnets}"
-                pipe_vars.subnets.each { subnetX ->
-                    sh "echo this subnet is ${subnetX}"
-                }
-                sh script: "echo \" trick for aws is ${pipe_vars.subnets.join(" ")} \""
-                
-                exit 222
                 if (pipe_vars.deploy) {
                     node ( label: 'awscli' ) {
                         stage("checkout ${envs}") {
@@ -75,12 +67,12 @@ def call(Map buildParams) {
                             sh "echo \"version: '3'\" > infrastructure/docker-compose.yaml"
                             sh "echo \"services:\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"  ${defaults.applicationName}:\" >> infrastructure/docker-compose.yaml"
-                            // if $(BRANCH_NAME == jenkinsfile) {
-                                // sh "echo \"    image: \"\$(aws sts get-caller-identity --output text --query Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:latest\"\" >> infrastructure/docker-compose.yaml"
-                            // }
-                            // else {
+                            if $(BRANCH_NAME == jenkinsfile) {
+                                sh "echo \"    image: \"\$(aws sts get-caller-identity --output text --query Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:latest\"\" >> infrastructure/docker-compose.yaml"
+                            }
+                            else {
                                 sh "echo \"    image: \"\$(aws sts get-caller-identity --output text --query Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)\"\" >> infrastructure/docker-compose.yaml"
-                            // }
+                            }
                             sh "echo \"    ports:\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"      - ${defaults.portExpose}:${defaults.portExpose}\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"    logging:\" >> infrastructure/docker-compose.yaml"
@@ -102,7 +94,7 @@ def call(Map buildParams) {
                             }
                             sh "cat infrastructure/docker-compose.yaml"
 
-                            sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker-compose.yaml --ecs-params infrastructure/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.applicationName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
+                            // sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker-compose.yaml --ecs-params infrastructure/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.applicationName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
                         }
                         if (defaults.is_frontend) {
                             stage("frontend configuration ${envs}") {
