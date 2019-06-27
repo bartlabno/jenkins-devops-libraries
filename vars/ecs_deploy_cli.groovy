@@ -34,6 +34,7 @@ def call(Map buildParams) {
                             sh script: "(aws elbv2 create-listener --load-balancer-arn \$(aws elbv2 describe-load-balancers --name ${defaults.projectName}-${envs} --output text --query LoadBalancers[].LoadBalancerArn) --protocol HTTP --port ${defaults.albExtPort} --default-actions Type=forward,TargetGroupArn=\$(aws elbv2 describe-target-groups --region ${defaults.awsRegion} --name ${defaults.projectName}-${defaults.applicationName}-${envs} --output text --query TargetGroups[].TargetGroupArn))"
                             sh script: "(aws logs list-tags-log-group --log-group-name ${defaults.projectName}-${envs} --region ${defaults.awsRegion}) || (aws logs create-log-group --log-group-name ${defaults.projectName}-${envs} --region ${defaults.awsRegion})", label: "create log group"
                             
+                            // build ecs-params.yaml
                             sh "echo \"version: 1\" > infrastructure/ecs-params.yaml" 
                             sh "echo \"task_definition:\" >> infrastructure/ecs-params.yaml"
                             sh "echo \"   task_execution_role: ecsTaskExecutionRole\" >> infrastructure/ecs-params.yaml"
@@ -52,10 +53,16 @@ def call(Map buildParams) {
                             sh "echo \"         assign_public_ip: ENABLED\" >> infrastructure/ecs-params.yaml"
                             sh "cat infrastructure/ecs-params.yaml"
 
+                            // build docker-compose.yaml
                             sh "echo \"version: 1\" > infrastructure/docker-compose.yaml"
                             sh "echo \"services:\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"  ${defaults.applicationName}:\" >> infrastructure/docker-compose.yaml"
-                            sh "echo \"    image: \"\$(aws sts get-caller-identity --output text --query Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)\"\" >> infrastructure/docker-compose.yaml"
+                            // if $(BRANCH_NAME == jenkinsfile) {
+                                // sh "echo \"    image: \"\$(aws sts get-caller-identity --output text --query Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:latest\"\" >> infrastructure/docker-compose.yaml"
+                            // }
+                            // else {
+                                sh "echo \"    image: \"\$(aws sts get-caller-identity --output text --query Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)\"\" >> infrastructure/docker-compose.yaml"
+                            // }
                             sh "echo \"    ports:\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"      - ${defaults.portExpose}:${defaults.portExpose}\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"    logging:\" >> infrastructure/docker-compose.yaml"
@@ -77,7 +84,7 @@ def call(Map buildParams) {
                             }
                             sh "cat infrastructure/docker-compose.yaml"
 
-                            // sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker-compose.yaml --ecs-params infrastructure/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.containerName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
+                            sh script: "ecs-cli compose --project-name ${defaults.projectName}-${defaults.applicationName}-${envs} --file infrastructure/docker-compose.yaml --ecs-params infrastructure/ecs-params.yaml service up --target-group-arn \$(aws elbv2 describe-target-groups --name ${defaults.projectName}-${defaults.applicationName}-${envs} --region ${defaults.awsRegion} --output text --query TargetGroups[].TargetGroupArn) --container-name ${defaults.containerName} --container-port ${defaults.portExpose} --timeout 15", label: "deploy"
                         }
                         if (defaults.is_frontend) {
                             stage("frontend configuration ${envs}") {
