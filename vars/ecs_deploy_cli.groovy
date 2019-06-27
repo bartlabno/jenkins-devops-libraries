@@ -19,6 +19,8 @@ def call(Map buildParams) {
                     sh "echo \"\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpc-id,Values=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId) --output text --query Subnets[].SubnetId)\" > infrastructure/default_subnets"
                     pipe_vars.subnets = readFile 'infrastructure/default_subnets'
                     sh "echo ${pipe_vars.subnets}"
+                    pipe_vars.subnets = pipe_vars.subnets.split(' ').collect
+                    sh "echo ${pipe_vars.subnets}"
                 }
                 sh "echo ${pipe_vars.vpc} and ${pipe_vars.subnets}"
                 pipe_vars.subnets.each { subnetX ->
