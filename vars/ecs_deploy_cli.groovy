@@ -67,7 +67,7 @@ def call(Map buildParams) {
                             sh "echo \"version: '3'\" > infrastructure/docker-compose.yaml"
                             sh "echo \"services:\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"  ${defaults.applicationName}:\" >> infrastructure/docker-compose.yaml"
-                            if $(BRANCH_NAME == jenkinsfile) {
+                            if (BRANCH_NAME == jenkinsfile) {
                                 sh "echo \"    image: \"\$(aws sts get-caller-identity --output text --query Account).dkr.ecr.${defaults.awsRegion}.amazonaws.com/${defaults.projectName}-${defaults.applicationName}:latest\"\" >> infrastructure/docker-compose.yaml"
                             }
                             else {
