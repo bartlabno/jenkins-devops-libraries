@@ -54,7 +54,7 @@ def call(Map buildParams) {
                             sh "cat infrastructure/ecs-params.yaml"
 
                             // build docker-compose.yaml
-                            sh "echo \"version: 1\" > infrastructure/docker-compose.yaml"
+                            sh "echo \"version: 3\" > infrastructure/docker-compose.yaml"
                             sh "echo \"services:\" >> infrastructure/docker-compose.yaml"
                             sh "echo \"  ${defaults.applicationName}:\" >> infrastructure/docker-compose.yaml"
                             // if $(BRANCH_NAME == jenkinsfile) {
