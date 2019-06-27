@@ -12,7 +12,7 @@ def call(Map buildParams) {
                 if (!pipe_vars.create_vpc) { pipe_vars.create_vpc = false }
                 if (!pipe_vars.vpc) { 
                     sh "export DEFAULT_VPC=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId)"
-                    sh "export DEFAULT_SUBNETS=\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpc-id,Values=${DEFAULT_VPC})"
+                    sh "export DEFAULT_SUBNETS=\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpc-id,Values=${DEFAULT_VPC} --output text --query Subnets[].SubnetId)"
                     pipe_vars.vpc = $DEFAULT_VPC
                     pipe_vars.subnets = $DEFAULT_SUBNETS
                 }
