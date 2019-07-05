@@ -11,8 +11,8 @@ def call(Map buildParams) {
                 if (!pipe_vars.cpuLimit) { pipe_vars.cpuLimit = "256" }
                 if (!pipe_vars.create_vpc) { pipe_vars.create_vpc = false }
                 if (!pipe_vars.vpc) {
-                    sh "export DEFAULT_VPC=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId)"
-                    pipe_vars.vpc = $DEFAULT_VPC
+                    sh "echo \"\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId)\" > infrastructure/default_vpc"
+                    pipe_vars.vpc = readFile 'infrastructure/default_vpc'
                 }
                 if (!pipe_vars.subnets) { 
                     sh "echo \"\$(aws ec2 describe-subnets --region ${defaults.awsRegion} --filters Name=vpc-id,Values=\$(aws ec2 describe-vpcs --region ${defaults.awsRegion} --filters Name=isDefault,Values=true --output text --query Vpcs[].VpcId) --output text --query Subnets[].SubnetId)\" > infrastructure/default_subnets"
