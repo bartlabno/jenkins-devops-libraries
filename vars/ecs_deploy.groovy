@@ -8,7 +8,9 @@ def call(Map buildParams) {
             defaults.project_env.each { key, value ->
                 println key
                 value.each { key_value, value_value ->
-                    println key_value
+                    if (key_value == deploy) {
+                        println key_value + " is " + value_value
+                    }
                 }
             }
             sh "echo \"${defaults.project_env}\""
