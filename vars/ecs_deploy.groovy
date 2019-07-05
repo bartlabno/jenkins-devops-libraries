@@ -3,7 +3,7 @@
 def call(Map buildParams) {
     node ( label: 'linux' ) {
         stage("gathering fatcs") {
-            checkout scm
+            //checkout scm
             def defaults = readYaml file: "./jenkins.yaml"
             defaults.project_env.each { key, value ->
                 println key
