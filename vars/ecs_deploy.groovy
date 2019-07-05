@@ -5,7 +5,7 @@ def call(Map buildParams) {
         stage("gathering fatcs") {
             checkout scm
             def defaults = readYaml file: "./jenkins.yaml"
-            defaults.project_env.environments { envs ->
+            defaults.project_env { envs ->
                 sh "echo \"${envs}\""
                 sh "echo \"${defaults.app_type}\""
                 sh "echo \"${defaults.allowed_ip}\""
