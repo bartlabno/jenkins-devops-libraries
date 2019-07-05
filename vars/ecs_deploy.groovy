@@ -7,7 +7,7 @@ def call(Map buildParams) {
             def defaults = readYaml file: "./jenkins.yaml"
             defaults.project_env.each { key, value ->
                 println key
-                if (value == "deploy") { 
+                if (value.contains("deploy")) { 
                     println value
                 }
             }
