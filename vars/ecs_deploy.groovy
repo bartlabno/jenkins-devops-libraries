@@ -8,7 +8,7 @@ def call(Map buildParams) {
             defaults.project_env.each { key, value ->
                 println key
                 value.each { key_value, value_value ->
-                    if (key_value == deploy) {
+                    if (key_value == "deploy") {
                         println key_value + " is " + value_value
                     }
                 }
