@@ -5,11 +5,12 @@ def call(Map buildParams) {
         stage("gathering fatcs") {
             checkout scm
             def defaults = readYaml file: "./jenkins.yaml"
-            defaults.project_env { envs ->
+            sh "echo \"${defaults.project_env}\""
+            defaults.project_name { envs ->
                 sh "echo \"${envs}\""
-                sh "echo \"${defaults.app_type}\""
-                sh "echo \"${defaults.allowed_ip}\""
-                sh "echo \"${defaults.project_name}\""
+                // sh "echo \"${defaults.app_type}\""
+                // sh "echo \"${defaults.allowed_ip}\""
+                // sh "echo \"${defaults.project_name}\""
                 // if (!defaults.mem_limit) { defaults.mem_limit = "0.5" }
                 // if (!defaults.cpu_limit) { defaults.cpu_limit = "256" }
                 // if (!defaults.use_vpc) {
