@@ -5,7 +5,7 @@ def call(Map buildParams) {
         stage("gathering fatcs") {
             checkout scm
             def defaults = readYaml file: "./jenkins.yaml"
-            defaults.each{println it}
+            defaults.project_env.each{println it}
             sh "echo \"${defaults.project_env}\""
             // defaults.project_name { envs ->
             //     sh "echo \"${envs}\""
