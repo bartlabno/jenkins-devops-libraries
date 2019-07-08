@@ -22,7 +22,7 @@ To build application you need to declare it is kind. At the moment `npm` and `do
 # Environmental variables
 All environmental variables are optional only. These section can be completely removed from jenkins.yaml if your application doesn't use any of these ones.
 - non-secrets and non-sensitive values put directly into `jenkins.yaml` inside your project. You can do it in two ways:
-- If it is global variable create it under `[env_vars](./jenkins.yaml#L26)` section
+- If it is global variable create it under [env_vars](./jenkins.yaml#L26) section
 - If it is specific per env variable create it under [variable](./jenkins.yaml#L14) section.
 
 If variables needs to be hidden (credentials, tokens, connection strings, and anything else) - go to the [AWS Secrets Manager](https://eu-west-2.console.aws.amazon.com/secretsmanager/home?region=eu-west-2#/home) and create a new one under specific path:
