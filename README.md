@@ -22,14 +22,14 @@ To build application you need to declare it is kind. At the moment `npm` and `do
 # Environmental variables
 All environmental variables are optional only. These section can be completely removed from jenkins.yaml if your application doesn't use any of these ones.
 - non-secrets and non-sensitive values put directly into `jenkins.yaml` inside your project. You can do it in two ways:
-- If it is global variable create it under `env_vars` section (like https://github.com/burrowsyr/cloudformation-templates/blob/infrastructure/jenkins.yaml#L26)
-- If it is specific per env variable create it under variable section (https://github.com/burrowsyr/cloudformation-templates/blob/infrastructure/jenkins.yaml#L14)
+- If it is global variable create it under `[env_vars](./jenkins.yaml#L26)` section
+- If it is specific per env variable create it under [variable](./jenkins.yaml#L14) section.
 
-If variables needs to be hidden (credentials, tokens, connection strings, and anything else) - go to the AWS Secrets Manager (https://eu-west-2.console.aws.amazon.com/secretsmanager/home?region=eu-west-2#/home) and create a new one under specific path:
+If variables needs to be hidden (credentials, tokens, connection strings, and anything else) - go to the [AWS Secrets Manager](https://eu-west-2.console.aws.amazon.com/secretsmanager/home?region=eu-west-2#/home) and create a new one under specific path:
 ```/{{ project_name }}/{{ environment }}/{{ application_name }}/{{ variable_name }}```
 like:
 ```/cobra/dev/job-monitoring/AWS_SECRET_KEY```
-project_name and application name are defined at the beginning of jenkins.yaml file under your project. You also need to add {{ variable_name }} into secret_vars section (https://github.com/burrowsyr/cloudformation-templates/blob/infrastructure/jenkins.yaml#L31)
+project_name and application name are defined at the beginning of jenkins.yaml file under your project. You also need to add {{ variable_name }} into [secret_vars](./jenkins.yaml#L31) section.
 
 # Optional variables
 You can go into [jenknis.yaml](./jenkins.yaml) file to look for any additional variables. Some of these are not documented well yet or not working yet (like `create_vpc`) as these will be added into upcoming releases. More documentation will be added here with next releases as well.
