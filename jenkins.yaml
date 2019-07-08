@@ -1,0 +1,52 @@
+---
+# Provice project and application name and type (all mandatory):
+project_name: project
+application_name: application-xyz
+project_env: 
+  sandbox:
+# Deploy to environment true or false
+    deploy: false
+  dev:
+    deploy: true
+# IP range to expose your application. By default available to world (AllowedIp: 0.0.0.0/0)
+    allowed_ip: "1.2.3.4/32"
+# Additonal container variables per environment only
+    env_vars:
+      - Name: dev_specific_var
+        Value: and it is value
+      - Name: dev_specific_var_two
+        Value: and it is another value
+  uat:
+    deploy: false
+  prod:
+    deploy: false
+app_type: dotnet
+
+# Additional global environmental varialbes and secrets per env for containers (all optional)
+env_vars:
+  - Name: AWS_DEFAULT_OUTPUT
+    Value: json
+  - Name: AWS_DEFAULT_REGION
+    Value: eu-west-2
+secret_vars:
+  - AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY
+  - Connection_String
+
+# Additional AWS options:
+# AWS region to deploy (default: eu-west-1)
+project_region: eu-west-2
+# AWS to create additional VPC for your environment (not supported yet)
+create_vpc: false
+# VPC to deploy your application if create_vpc is false. If variable not defined will deploy to default VPC
+use_vpc: "vpc-1234ab00"
+# Subnets to deploy your application if create_vpc is false. If use_vpc not defined will deploy to default subnets
+use_subnets: "subnet-ab123456, subnet-cd54321"
+
+# Additional network options:
+# Container port to exposed. All your application services must run on different ports. (default: 80)
+port_expose: 3000
+# Route 53 root domain to build your application (default: example.com)
+root_domain: "domain-name.com"
+# Time to live, how fast your changes will be applied to route53 (default: 300)
+ttl: 60
