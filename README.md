@@ -14,7 +14,7 @@ You need to provide project name. If you are creating project which is based on 
 - project_name: Project_Name
 Project name helps you to create separate services running under one project
 - application_name: Application_Name
-You need to declare which environments will be in use. Please remember you can define envs only but not deploy into them. This is a default behaviour. To deploy you need to add additional variable `deploy` under [environment](./blob/master/jenkins.yaml#L10) section 
+You need to declare which environments will be in use. Please remember you can define envs only but not deploy into them. This is a default behaviour. To deploy you need to add additional variable `deploy` under [environment](./jenkins.yaml#L10) section 
 - project_env: [sandbox, dev, uat, staging, prod]
 To build application you need to declare it is kind. At the moment `npm` and `dotnet` are supported. This adds extra layer of unit tests when your application is being build.
 - app_type: dotnet
