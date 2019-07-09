@@ -19,13 +19,15 @@ def call(Map buildParams) {
                     "registry login": { sh script: "\$(aws ecr get-login --region ${defaults.project_region} --no-include-email)", label: "login to docker registry" }
                 )
             }
-            stage('publish') {
-                sh script: "docker tag ${defaults.project_name}-${defaults.application_name} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "tag image"
-                sh script: "(aws ecr list-images --region ${defaults.project_region} --repository-name ${defaults.project_name}-${defaults.application_name}) || (aws ecr create-repository --region ${defaults.project_region} --repository-name ${defaults.project_name}-${defaults.application_name})", label: "check if repository exist"
-                sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "push image to registry"
-                if (env.BRANCH_NAME == "master") {
-                    sh script: "docker tag ${defaults.project_name}-${defaults.application_name} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:latest", label: "tag image latest"
-                    sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:latest", label: "push latest image to registry"
+            if (BRANCH_NAME.startsWith('PR') || (BRANCH_NAME == "master")) {
+                stage('publish') {
+                    sh script: "docker tag ${defaults.project_name}-${defaults.application_name} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "tag image"
+                    sh script: "(aws ecr list-images --region ${defaults.project_region} --repository-name ${defaults.project_name}-${defaults.application_name}) || (aws ecr create-repository --region ${defaults.project_region} --repository-name ${defaults.project_name}-${defaults.application_name})", label: "check if repository exist"
+                    sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:\$(echo $BRANCH_NAME)-\$(echo $BUILD_NUMBER)", label: "push image to registry"
+                    if (BRANCH_NAME == "master") {
+                        sh script: "docker tag ${defaults.project_name}-${defaults.application_name} \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:latest", label: "tag image latest"
+                        sh script: "docker push \$(aws sts get-caller-identity | jq -r .Account).dkr.ecr.${defaults.project_region}.amazonaws.com/${defaults.project_name}-${defaults.application_name}:latest", label: "push latest image to registry"
+                    }
                 }
             }
         }
