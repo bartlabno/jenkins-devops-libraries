@@ -14,15 +14,15 @@ def call(Map buildParams) {
                         defaults.build_arg.each { arg ->
                             sh "echo \"${arg}=\$(aws secretsmanager get-secret-value --secret-id /${defaults.projectName}/docker/${defaults.applicationName}/${secret} --output text --query SecretString)\" >> ./docker-build.args"
                     }
-                    sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name}-test -f Dockerfile.test \$(for i in 'cat docker-build.args'; do out+=\"--build-arg \$i \" ; done; echo \$out;out=\"\") .", label: "build test docker image"
+                    sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name}-test \$(for i in 'cat docker-build.args'; do out+=\"--build-arg \$i \" ; done; echo \$out;out=\"\") -f Dockerfile.test  .", label: "build test docker image"
                 } else {
-                    sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name}-test -f Dockerfile.test", label: "build test docker image"
+                    sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name}-test -f Dockerfile.test .", label: "build test docker image"
                 }
                 sh script: "docker run ${defaults.project_name}-${defaults.application_name}-test", label: "run test docker image"
             }
             stage('build') {
                 if (defaults.build_arg) {
-                    sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} -f Dockerfile \$(for i in 'cat docker-build.args'; do out+=\"--build-arg \$i \" ; done; echo \$out;out=\"\") .", label: "build image"
+                    sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} \$(for i in 'cat docker-build.args'; do out+=\"--build-arg \$i \" ; done; echo \$out;out=\"\") -f Dockerfile .", label: "build image"
                 } else {
                     sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} -f Dockerfile .", label: "build image"
                 }
