@@ -26,7 +26,7 @@ def call(Map buildParams) {
                 } else {
                     sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} -f Dockerfile .", label: "build image"
                 }
-                "registry login": { sh script: "\$(aws ecr get-login --region ${defaults.project_region} --no-include-email)", label: "login to docker registry" }
+                sh script: "\$(aws ecr get-login --region ${defaults.project_region} --no-include-email)", label: "login to docker registry"
             }
             if (BRANCH_NAME.startsWith('PR') || (BRANCH_NAME == "master")) {
                 stage('publish') {
