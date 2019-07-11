@@ -21,14 +21,12 @@ def call(Map buildParams) {
                 sh script: "docker run ${defaults.project_name}-${defaults.application_name}-test", label: "run test docker image"
             }
             stage('build') {
-                parallel (
-                        if (defaults.build_arg) {
-                            "image build": { sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} -f Dockerfile \$(for i in 'cat docker-build.args'; do out+=\"--build-arg \$i \" ; done; echo \$out;out=\"\") .", label: "build image" },
-                        } else {
-                            "image build": { sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} -f Dockerfile .", label: "build image" },
-                        }
-                    "registry login": { sh script: "\$(aws ecr get-login --region ${defaults.project_region} --no-include-email)", label: "login to docker registry" }
-                )
+                if (defaults.build_arg) {
+                    "image build": { sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} -f Dockerfile \$(for i in 'cat docker-build.args'; do out+=\"--build-arg \$i \" ; done; echo \$out;out=\"\") .", label: "build image" },
+                } else {
+                    "image build": { sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name} -f Dockerfile .", label: "build image" },
+                }
+                "registry login": { sh script: "\$(aws ecr get-login --region ${defaults.project_region} --no-include-email)", label: "login to docker registry" }
             }
             if (BRANCH_NAME.startsWith('PR') || (BRANCH_NAME == "master")) {
                 stage('publish') {
