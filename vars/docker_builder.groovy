@@ -11,8 +11,9 @@ def call(Map buildParams) {
                 sh script: "cp ~/scripts/unitTests.sh ."
                 sh script: "cp ~/scripts/Dockerfile.sdk-2.2 ./Dockerfile.test"
                 if (defaults.build_arg) {
-                        defaults.build_arg.each { arg ->
-                            sh "echo -n \" --build-arg ${arg}=\$(aws secretsmanager get-secret-value --secret-id /${defaults.project_name}/docker/${defaults.application_name}/${arg} --output text --query SecretString)\" >> ./docker-build.args"
+                    sh "(ls ./docker-build.args && rm -f ./docker-build.args) || (echo \"file ./docker-build.args doesn't exist\")"
+                    defaults.build_arg.each { arg ->
+                        sh "echo -n \" --build-arg ${arg}=\$(aws secretsmanager get-secret-value --secret-id /${defaults.project_name}/docker/${defaults.application_name}/${arg} --output text --query SecretString)\" >> ./docker-build.args"
                     }
                     sh script: "docker build --no-cache -t ${defaults.project_name}-${defaults.application_name}-test \$(cat ./docker-build.args) -f Dockerfile.test  .", label: "build test docker image"
                 } else {
