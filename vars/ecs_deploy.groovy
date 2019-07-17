@@ -8,8 +8,10 @@ def call(Map buildParams) {
             defaults.project_env.each { env, env_values ->
                 env_values.each { is_deploy, is_true ->
                     if (is_deploy == "deploy" && is_true && BRANCH_NAME == "master") {
-                        stage("deploy to ${env_values}") {
-                            sh "ansible-pull -U https://github.com/bartlabno/cloud-formation-ecs-fargate.git --extra-vars @${WORKSPACE}/jenkins.yaml --extra-vars \"current_env=${env}\" --extra-vars \"branch_name=${BRANCH_NAME}\" --extra-vars \"build_number=${BUILD_NUMBER}\" site.yaml"
+                        stage("prepare ansible vars for ${env}")
+                            sh "export ansibleextras=$(mktemp -p ./) && (for variable in $(aws secretsmanager list-secrets --output text --query SecretList[].[Name] | grep \"/cobra/dev/ansible\" | cut -d \"/\" -f 5); do echo \"\$a: \$(aws secretsmanager get-secret-value --secret-id /cobra/dev/ansible/\$variable --output text --query SecretString)\" >> \$ansibleextras; done)"
+                        stage("deploy to ${env}") {
+                            sh "ansible-pull -U https://github.com/bartlabno/cloud-formation-ecs-fargate.git --extra-vars @${WORKSPACE}/jenkins.yaml --extra-vars @${ansibleextras} --extra-vars \"current_env=${env}\" --extra-vars \"branch_name=${BRANCH_NAME}\" --extra-vars \"build_number=${BUILD_NUMBER}\" site.yaml"
                         }
                     }
                 }
